@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniChat Schema Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-dark: #0a0a0a; 
+            --panel-bg: #121212; 
+            --sidebar-bg: #0f0f0f; 
+            --border-color: #262626; 
+            --text-main: #f5f5f5; 
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bento-card { 
+            background-color: var(--panel-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .bento-card:hover { 
+            transform: scale(1.01) translateY(-1px); 
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.08); 
+            border-color: rgba(59, 130, 246, 0.2); 
+        }
+        select {
+            background-color: #1c1c1e !important;
+            border: 1px solid #333 !important;
+            color: #f5f5f5 !important;
+        }
+        select:focus {
+            outline: none;
+            border-color: #3b82f6 !important;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden flex min-h-screen">
+
+    <!-- Sidebar Layout Matching Backend Telemetry -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-64 border-r border-zinc-800 shrink-0 z-50" style="background-color: var(--sidebar-bg);">
+        <div class="p-6 h-[88px] flex items-center overflow-hidden border-b border-zinc-800/50">
+            <i data-lucide="network" class="w-6 h-6 text-blue-400 shrink-0 mr-3"></i>
+            <span class="text-xl font-semibold tracking-wide whitespace-nowrap">SCHEMA HUB</span>
+        </div>
+        <div class="p-4">
+            <div class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase px-3 mb-2">Base Endpoint</div>
+            <div class="font-mono text-xs text-zinc-400 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 break-all select-all">
+                https://celinda-multilobed-drunkenly.ngrok-free.dev/v1
+            </div>
+        </div>
+        <nav class="flex-1 px-4 space-y-2 mt-2">
+            <div class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase px-3 mb-2">Filters</div>
+            <input type="text" id="searchBar" placeholder="Search models..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-blue-500">
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-screen overflow-y-auto flex flex-col items-center p-4 md:p-8">
+        <div class="w-full max-w-7xl">
+            
+            <!-- Header Block -->
+            <header class="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 mb-8 w-full border-b border-zinc-800 pb-6">
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="flex items-center gap-2 text-xs font-semibold text-blue-400 tracking-widest mb-1 uppercase">
+                        <i data-lucide="braces" class="w-3.5 h-3.5"></i> API Payload Directory
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-medium tracking-tight">Model JSON Configurator</h1>
+                </div>
+                <div class="text-xs font-mono text-zinc-500 bg-zinc-900/30 px-4 py-2 rounded-lg border border-zinc-800">
+                    Target URL: <span class="text-zinc-300">/chat/completions</span>
+                </div>
+            </header>
+
+            <!-- Dynamic Bento Grid Section -->
+            <div id="modelsGrid" class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-12">
+                <!-- Javascript will inject the tailored cards here dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripting Core Logic -->
+    <script>
+        // Full model array explicitly matching your proxy dictionary mapping parameters
+        const modelsData = [
+            // Category 1: GPT-5.6 Family
+            { id: "gpt-5.6", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.6-sol", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.6-terra", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.6-luna", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
+            
+            // Category 2: GPT-5.x & Codex
+            { id: "gpt-5.5", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.5-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "pro" },
+            { id: "gpt-5.4", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.4-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "pro" },
+            { id: "gpt-5.4-mini", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.4-nano", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.2", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.2-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "pro" },
+            { id: "gpt-5.1", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "pro" },
+            { id: "gpt-5-chat-latest", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: false },
+            { id: "gpt-5-mini", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5-nano", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5-search-api", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100000, needsReasoning: false },
+            { id: "gpt-5.3-chat-latest", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "medium_only" },
+            { id: "gpt-5.3-codex", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.2-codex", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.1-codex", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.1-codex-max", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5.1-codex-mini", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "gpt-5-codex", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+
+            // Category 3: Reasoning & Autonomous Agents
+            { id: "o4-mini", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
+            { id: "o4-mini-deep-research", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "medium_only", searchTool: true },
+            { id: "o3", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
+            { id: "o3-mini", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
+            { id: "o3-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+            { id: "o3-deep-research", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "medium_only", searchTool: true },
+            { id: "o1", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
+            { id: "o1-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
+
+            // Category 4: Standard Tiers
+            { id: "gpt-4.1", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4.1-mini", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4.1-nano", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4o", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4o-mini", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4o-search-preview", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384, searchTool: true },
+            { id: "gpt-4o-mini-search-preview", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384, searchTool: true },
+            { id: "chat-latest", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
+            { id: "gpt-4-turbo", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 },
+            { id: "gpt-4-turbo-2024-04-09", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 },
+            { id: "gpt-4", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 },
+            { id: "gpt-4-0613", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 },
+            { id: "gpt-3.5-turbo", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 }
+        ];
+
+        // Tracks selected configuration variables per unique model instance
+        let states = {};
+
+        function initStates() {
+            modelsData.forEach(m => {
+                states[m.id] = {
+                    max_tokens_val: m.absoluteMax,
+                    stream: false,
+                    temperature: 0.7,
+                    reasoning_effort: m.specialReasoning === "medium_only" ? "medium" : (m.specialReasoning === "pro" ? "high" : "medium"),
+                    reasoning_mode: "standard"
+                };
+            });
+        }
+
+        function generateJson(modelId) {
+            const m = modelsData.find(x => x.id === modelId);
+            const s = states[modelId];
+
+            // Build base object structures depending on endpoint pipeline logic inside the proxy backend
+            let payload = {};
+
+            if (m.type === "responses_api") {
+                payload = {
+                    model: m.id,
+                    input: [
+                        { role: "system", content: "You are a helpful assistant." },
+                        { role: "user", content: "Hello!" }
+                    ]
+                };
+                payload[m.maxTokensKey] = s.max_tokens_val;
+            } else {
+                payload = {
+                    model: m.id,
+                    messages: [
+                        { role: "system", content: "You are a helpful assistant." },
+                        { role: "user", content: "Hello!" }
+                    ]
+                };
+                payload[m.maxTokensKey] = s.max_tokens_val;
+            }
+
+            // Temperature rules checking
+            if (m.type === "standard" || m.type === "legacy_tokens") {
+                payload.temperature = s.temperature;
+                payload.top_p = 1;
+            }
+
+            // Stream state insertion
+            payload.stream = s.stream;
+
+            // Reasoning parameters allocation logic based on custom rules engine mapping 
+            if (m.needsReasoning) {
+                if (m.type === "gpt56") {
+                    payload.reasoning = {
+                        mode: s.reasoning_mode,
+                        effort: s.reasoning_effort
+                    };
+                } else {
+                    payload.reasoning_effort = s.reasoning_effort;
+                }
+            }
+
+            // Tools array configuration logic
+            if (m.searchTool) {
+                if (m.type === "responses_api") {
+                    payload.tools = [{ type: "web_search_preview" }];
+                    payload.background = true;
+                } else {
+                    payload.tools = [{ type: "web_search_preview" }];
+                }
+            }
+
+            return JSON.stringify(payload, null, 2);
+        }
+
+        function updateCardJson(modelId) {
+            const displayEl = document.getElementById(`json-${btoa(modelId).replace(/=/g, '')}`);
+            if (displayEl) {
+                displayEl.textContent = generateJson(modelId);
+            }
+        }
+
+        function copyJson(modelId, btn) {
+            const jsonText = generateJson(modelId);
+            navigator.clipboard.writeText(jsonText).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400 text-xs font-mono">Copied</span>`;
+                lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    lucide.createIcons();
+                }, 2000);
+            });
+        }
+
+        function renderGrid(filterText = "") {
+            const container = document.getElementById("modelsGrid");
+            container.innerHTML = "";
+
+            const filtered = modelsData.filter(m => m.id.toLowerCase().includes(filterText.toLowerCase()));
+
+            filtered.forEach(m => {
+                const safeId = btoa(m.id).replace(/=/g, '');
+                const state = states[m.id];
+
+                // Setup specific labels dynamically based on max token configurations
+                let tokenLabel = m.maxTokensKey === "max_output_tokens" ? "Max Output Tokens" : (m.maxTokensKey === "max_tokens" ? "Max Tokens" : "Max Completion Tokens");
+
+                let card = document.createElement("div");
+                card.className = "bento-card p-6 flex flex-col justify-between relative group";
+                
+                let innerHTML = `
+                    <div>
+                        <!-- Title & Copy Bar -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-semibold text-zinc-200 tracking-wide font-mono text-sm">${m.id}</h3>
+                                <span class="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">${m.type.replace('_',' ')}</span>
+                            </div>
+                            <button onclick="copyJson('${m.id}', this)" class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 rounded-lg flex items-center gap-1.5 transition text-zinc-400 hover:text-white cursor-pointer">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Configuration Interface Bento Grid Layer -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <!-- Dropdown 1: Token Clamp Allocator -->
+                            <div>
+                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">${tokenLabel}</label>
+                                <select onchange="states['${m.id}'].max_tokens_val = parseInt(this.value); updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
+                                    <option value="${m.absoluteMax}">Absolute Max (${m.absoluteMax})</option>
+                                    <option value="4096">Standard (4096)</option>
+                                    <option value="1024">Compact (1024)</option>
+                                    <option value="16">Floor Limit (16)</option>
+                                </select>
+                            </div>
+
+                            <!-- Dropdown 2: Transmission Stream Matrix -->
+                            <div>
+                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Stream Mode</label>
+                                <select onchange="states['${m.id}'].stream = this.value === 'true'; updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
+                                    <option value="false">False (JSON Object)</option>
+                                    <option value="true">True (SSE Stream)</option>
+                                </select>
+                            </div>
+                `;
+
+                // Render Temperature if allowed by pipeline parameters mapping logic
+                if (m.type === "standard" || m.type === "legacy_tokens") {
+                    innerHTML += `
+                            <div>
+                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Temperature</label>
+                                <select onchange="states['${m.id}'].temperature = parseFloat(this.value); updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
+                                    <option value="0.7">Deterministic (0.7)</option>
+                                    <option value="1.0">Creative (1.0)</option>
+                                    <option value="0.0">Strict Zero (0.0)</option>
+                                </select>
+                            </div>
+                    `;
+                }
+
+                // Append Dynamic Reasoning block states mapping
+                if (m.needsReasoning) {
+                    if (m.type === "gpt56") {
+                        innerHTML += `
+                            <div>
+                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Reasoning Mode</label>
+                                <select onchange="states['${m.id}'].reasoning_mode = this.value; updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
+                                    <option value="standard">Standard</option>
+                                    <option value="pro">Pro Engine</option>
+                                </select>
+                            </div>
+                        `;
+                    }
+
+                    // Handles Effort constraints parameter matching proxy checks
+                    let effortOptions = `<option value="medium">Medium</option>`;
+                    if (m.specialReasoning !== "medium_only") {
+                        effortOptions += `
+                            <option value="low">Low</option>
+                            <option value="high">High</option>
+                        `;
+                        if (m.type === "gpt56") {
+                            effortOptions += `
+                                <option value="none">None</option>
+                                <option value="xhigh">Extra High</option>
+                                <option value="max">Max Ceiling</option>
+                            `;
+                        }
+                    }
+
+                    innerHTML += `
+                            <div>
+                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Reasoning Effort</label>
+                                <select onchange="states['${m.id}'].reasoning_effort = this.value; updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
+                                    ${effortOptions}
+                                </select>
+                            </div>
+                    `;
+                }
+
+                innerHTML += `
+                        </div>
+                    </div>
+
+                    <!-- JSON Code Sandbox Output Layout -->
+                    <div class="mt-2 relative">
+                        <pre class="bg-zinc-950/70 text-zinc-400 p-4 rounded-lg font-mono text-[11px] overflow-x-auto max-h-48 border border-zinc-900/60"><code id="json-${safeId}"></code></pre>
+                    </div>
+                `;
+
+                card.innerHTML = innerHTML;
+                container.appendChild(card);
+                updateCardJson(m.id);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Search Input listener
+        document.getElementById("searchBar").addEventListener("input", (e) => {
+            renderGrid(e.target.value);
+        });
+
+        // Application Lifecyle Initiation
+        initStates();
+        renderGrid();
+    </script>
+</body>
+</html>
