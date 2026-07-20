@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniChat Schema Hub</title>
+    <title>OmniChat Config Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -47,11 +47,11 @@
     <!-- Sidebar Layout Matching Backend Telemetry -->
     <aside id="sidebar" class="hidden md:flex flex-col w-64 border-r border-zinc-800 shrink-0 z-50" style="background-color: var(--sidebar-bg);">
         <div class="p-6 h-[88px] flex items-center overflow-hidden border-b border-zinc-800/50">
-            <i data-lucide="network" class="w-6 h-6 text-blue-400 shrink-0 mr-3"></i>
-            <span class="text-xl font-semibold tracking-wide whitespace-nowrap">SCHEMA HUB</span>
+            <i data-lucide="wrench" class="w-6 h-6 text-blue-400 shrink-0 mr-3"></i>
+            <span class="text-xl font-semibold tracking-wide whitespace-nowrap">CONFIG HUB</span>
         </div>
         <div class="p-4">
-            <div class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase px-3 mb-2">Base Endpoint</div>
+            <div class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase px-3 mb-2">Target Base URL</div>
             <div class="font-mono text-xs text-zinc-400 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 break-all select-all">
                 https://celinda-multilobed-drunkenly.ngrok-free.dev/v1
             </div>
@@ -70,12 +70,12 @@
             <header class="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 mb-8 w-full border-b border-zinc-800 pb-6">
                 <div class="flex flex-col items-center md:items-start">
                     <div class="flex items-center gap-2 text-xs font-semibold text-blue-400 tracking-widest mb-1 uppercase">
-                        <i data-lucide="braces" class="w-3.5 h-3.5"></i> API Payload Directory
+                        <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Coding Extension Settings
                     </div>
-                    <h1 class="text-2xl md:text-3xl font-medium tracking-tight">Model JSON Configurator</h1>
+                    <h1 class="text-2xl md:text-3xl font-medium tracking-tight">Extension Block Creator</h1>
                 </div>
                 <div class="text-xs font-mono text-zinc-500 bg-zinc-900/30 px-4 py-2 rounded-lg border border-zinc-800">
-                    Target URL: <span class="text-zinc-300">/chat/completions</span>
+                    Format: <span class="text-emerald-400">Continue / OpenAI-Compatible</span>
                 </div>
             </header>
 
@@ -88,15 +88,13 @@
 
     <!-- Scripting Core Logic -->
     <script>
-        // Full model array explicitly matching your proxy dictionary mapping parameters
+        // Model dataset matching backend structure
         const modelsData = [
-            // Category 1: GPT-5.6 Family
             { id: "gpt-5.6", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
             { id: "gpt-5.6-sol", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
             { id: "gpt-5.6-terra", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
             { id: "gpt-5.6-luna", type: "gpt56", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true },
             
-            // Category 2: GPT-5.x & Codex
             { id: "gpt-5.5", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
             { id: "gpt-5.5-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "pro" },
             { id: "gpt-5.4", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
@@ -120,7 +118,6 @@
             { id: "gpt-5.1-codex-mini", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
             { id: "gpt-5-codex", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
 
-            // Category 3: Reasoning & Autonomous Agents
             { id: "o4-mini", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
             { id: "o4-mini-deep-research", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 131072, needsReasoning: true, specialReasoning: "medium_only", searchTool: true },
             { id: "o3", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
@@ -130,7 +127,6 @@
             { id: "o1", type: "standard_no_temp", maxTokensKey: "max_completion_tokens", absoluteMax: 100003, needsReasoning: true },
             { id: "o1-pro", type: "responses_api", maxTokensKey: "max_output_tokens", absoluteMax: 131072, needsReasoning: true },
 
-            // Category 4: Standard Tiers
             { id: "gpt-4.1", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
             { id: "gpt-4.1-mini", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
             { id: "gpt-4.1-nano", type: "standard", maxTokensKey: "max_completion_tokens", absoluteMax: 16384 },
@@ -146,14 +142,12 @@
             { id: "gpt-3.5-turbo", type: "legacy_tokens", maxTokensKey: "max_tokens", absoluteMax: 4096 }
         ];
 
-        // Tracks selected configuration variables per unique model instance
         let states = {};
 
         function initStates() {
             modelsData.forEach(m => {
                 states[m.id] = {
                     max_tokens_val: m.absoluteMax,
-                    stream: false,
                     temperature: 0.7,
                     reasoning_effort: m.specialReasoning === "medium_only" ? "medium" : (m.specialReasoning === "pro" ? "high" : "medium"),
                     reasoning_mode: "standard"
@@ -165,61 +159,37 @@
             const m = modelsData.find(x => x.id === modelId);
             const s = states[modelId];
 
-            // Build base object structures depending on endpoint pipeline logic inside the proxy backend
-            let payload = {};
+            // Formats configuration layout tailored for extension configuration blocks
+            let configBlock = {
+                title: m.id.toUpperCase(),
+                model: m.id,
+                provider: "openai",
+                apiBase: "https://celinda-multilobed-drunkenly.ngrok-free.dev/v1",
+                apiKey: "dummy-key",
+                completionOptions: {}
+            };
 
-            if (m.type === "responses_api") {
-                payload = {
-                    model: m.id,
-                    input: [
-                        { role: "system", content: "You are a helpful assistant." },
-                        { role: "user", content: "Hello!" }
-                    ]
-                };
-                payload[m.maxTokensKey] = s.max_tokens_val;
-            } else {
-                payload = {
-                    model: m.id,
-                    messages: [
-                        { role: "system", content: "You are a helpful assistant." },
-                        { role: "user", content: "Hello!" }
-                    ]
-                };
-                payload[m.maxTokensKey] = s.max_tokens_val;
-            }
+            // Set dynamic max token properties inside standard option locations
+            configBlock.completionOptions[m.maxTokensKey] = s.max_tokens_val;
 
-            // Temperature rules checking
+            // Apply temperature context safely
             if (m.type === "standard" || m.type === "legacy_tokens") {
-                payload.temperature = s.temperature;
-                payload.top_p = 1;
+                configBlock.completionOptions.temperature = s.temperature;
             }
 
-            // Stream state insertion
-            payload.stream = s.stream;
-
-            // Reasoning parameters allocation logic based on custom rules engine mapping 
+            // Reasoning payload allocation logic
             if (m.needsReasoning) {
                 if (m.type === "gpt56") {
-                    payload.reasoning = {
+                    configBlock.completionOptions.reasoning = {
                         mode: s.reasoning_mode,
                         effort: s.reasoning_effort
                     };
                 } else {
-                    payload.reasoning_effort = s.reasoning_effort;
+                    configBlock.completionOptions.reasoning_effort = s.reasoning_effort;
                 }
             }
 
-            // Tools array configuration logic
-            if (m.searchTool) {
-                if (m.type === "responses_api") {
-                    payload.tools = [{ type: "web_search_preview" }];
-                    payload.background = true;
-                } else {
-                    payload.tools = [{ type: "web_search_preview" }];
-                }
-            }
-
-            return JSON.stringify(payload, null, 2);
+            return JSON.stringify(configBlock, null, 2);
         }
 
         function updateCardJson(modelId) {
@@ -250,9 +220,7 @@
 
             filtered.forEach(m => {
                 const safeId = btoa(m.id).replace(/=/g, '');
-                const state = states[m.id];
-
-                // Setup specific labels dynamically based on max token configurations
+                
                 let tokenLabel = m.maxTokensKey === "max_output_tokens" ? "Max Output Tokens" : (m.maxTokensKey === "max_tokens" ? "Max Tokens" : "Max Completion Tokens");
 
                 let card = document.createElement("div");
@@ -260,55 +228,39 @@
                 
                 let innerHTML = `
                     <div>
-                        <!-- Title & Copy Bar -->
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="font-semibold text-zinc-200 tracking-wide font-mono text-sm">${m.id}</h3>
-                                <span class="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">${m.type.replace('_',' ')}</span>
+                                <span class="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">For extensions models array</span>
                             </div>
                             <button onclick="copyJson('${m.id}', this)" class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 rounded-lg flex items-center gap-1.5 transition text-zinc-400 hover:text-white cursor-pointer">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                         
-                        <!-- Configuration Interface Bento Grid Layer -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
-                            <!-- Dropdown 1: Token Clamp Allocator -->
                             <div>
                                 <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">${tokenLabel}</label>
                                 <select onchange="states['${m.id}'].max_tokens_val = parseInt(this.value); updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
                                     <option value="${m.absoluteMax}">Absolute Max (${m.absoluteMax})</option>
                                     <option value="4096">Standard (4096)</option>
-                                    <option value="1024">Compact (1024)</option>
                                     <option value="16">Floor Limit (16)</option>
-                                </select>
-                            </div>
-
-                            <!-- Dropdown 2: Transmission Stream Matrix -->
-                            <div>
-                                <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Stream Mode</label>
-                                <select onchange="states['${m.id}'].stream = this.value === 'true'; updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
-                                    <option value="false">False (JSON Object)</option>
-                                    <option value="true">True (SSE Stream)</option>
                                 </select>
                             </div>
                 `;
 
-                // Render Temperature if allowed by pipeline parameters mapping logic
                 if (m.type === "standard" || m.type === "legacy_tokens") {
                     innerHTML += `
                             <div>
                                 <label class="block text-[10px] text-zinc-500 font-medium tracking-wider uppercase mb-1">Temperature</label>
                                 <select onchange="states['${m.id}'].temperature = parseFloat(this.value); updateCardJson('${m.id}')" class="w-full text-xs rounded-lg px-2.5 py-2 font-mono">
-                                    <option value="0.7">Deterministic (0.7)</option>
-                                    <option value="1.0">Creative (1.0)</option>
+                                    <option value="0.7">Default (0.7)</option>
                                     <option value="0.0">Strict Zero (0.0)</option>
                                 </select>
                             </div>
                     `;
                 }
 
-                // Append Dynamic Reasoning block states mapping
                 if (m.needsReasoning) {
                     if (m.type === "gpt56") {
                         innerHTML += `
@@ -322,7 +274,6 @@
                         `;
                     }
 
-                    // Handles Effort constraints parameter matching proxy checks
                     let effortOptions = `<option value="medium">Medium</option>`;
                     if (m.specialReasoning !== "medium_only") {
                         effortOptions += `
@@ -352,7 +303,6 @@
                         </div>
                     </div>
 
-                    <!-- JSON Code Sandbox Output Layout -->
                     <div class="mt-2 relative">
                         <pre class="bg-zinc-950/70 text-zinc-400 p-4 rounded-lg font-mono text-[11px] overflow-x-auto max-h-48 border border-zinc-900/60"><code id="json-${safeId}"></code></pre>
                     </div>
@@ -366,12 +316,10 @@
             lucide.createIcons();
         }
 
-        // Search Input listener
         document.getElementById("searchBar").addEventListener("input", (e) => {
             renderGrid(e.target.value);
         });
 
-        // Application Lifecyle Initiation
         initStates();
         renderGrid();
     </script>
